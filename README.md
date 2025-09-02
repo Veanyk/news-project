@@ -65,7 +65,7 @@ A robust and user-friendly web application for creating and displaying a paginat
 
 There are two ways to run this project: using Docker (recommended for simplicity and consistency) or setting it up manually.
 
-# Option 1: Running with Docker (Recommended)
+### Option 1: Running with Docker (Recommended)
 
 This method automatically sets up the Django application and the PostgreSQL database.
     
@@ -90,7 +90,7 @@ This method automatically sets up the Django application and the PostgreSQL data
     ```
     The application will be available at http://127.0.0.1:8000/.
     
-# Option 2: Manual Local Development Setup
+### Option 2: Manual Local Development Setup
     
 1. **Clone the repository:**
     ```bash
