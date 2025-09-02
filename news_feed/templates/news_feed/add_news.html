@@ -1,0 +1,148 @@
+{% extends 'news_feed/base.html' %}
+
+{% block content %}
+<style>
+    /* Стили для предпросмотра главного изображения */
+    #image-preview-container {
+        display: none;
+        position: relative;
+        margin-top: 15px;
+        border: 2px dashed #ddd;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    #image-preview {
+        max-width: 100%;
+        border-radius: 5px;
+    }
+    #remove-image-btn {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        line-height: 25px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+    .card-header {
+        font-weight: bold;
+    }
+</style>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.media }}
+
+    <div class="container-fluid mt-4">
+
+        <h2 class="mb-4">Создание новой записи</h2>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card p-4 shadow-sm">
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Ошибка!</strong> Пожалуйста, заполните пустые поля
+                        </div>
+                    {% endif %}
+
+                    <!-- Поле для заголовка с выводом ошибок -->
+                    <div class="mb-3">
+                        <label class="form-label h5" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                        <input type="text"
+                               name="{{ form.title.name }}"
+                               class="form-control {% if form.title.errors %}is-invalid{% endif %}"
+                               id="{{ form.title.id_for_label }}"
+                               value="{{ form.title.value|default_if_none:'' }}">
+                        {% for error in form.title.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                        <small class="form-text text-muted">Главный заголовок вашей новости.</small>
+                    </div>
+                    <hr>
+                    <!-- Редактор CKEditor с выводом ошибок -->
+                    <div class="mb-3">
+                        <label class="form-label h5">{{ form.body.label }}</label>
+                        {{ form.body }}
+                        {% for error in form.body.errors %}
+                            <div class="text-danger mt-1">
+                                <small>{{ error }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сайдбар с настройками -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        Публикация
+                    </div>
+                    <div class="card-body">
+                        <p>Нажмите, чтобы сохранить и опубликовать вашу новость.</p>
+                        <button type="submit" class="btn btn-primary w-100">Опубликовать</button>
+                        <a href="{% url 'news_list' %}" class="btn btn-secondary w-100 mt-2">Отмена</a>
+                    </div>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        {{ form.image.label }}
+                    </div>
+                    <div class="card-body">
+                         {{ form.image }}
+                        {% for error in form.image.errors %}
+                            <div class="text-danger mt-1">
+                                <small>{{ error }}</small>
+                            </div>
+                        {% endfor %}
+                         <small class="form-text text-muted">Это изображение будет показано вверху статьи</small>
+
+                        <div id="image-preview-container">
+                            <img id="image-preview" src="#" alt="Предпросмотр изображения" />
+                            <span id="remove-image-btn" title="Удалить изображение">&times;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script>
+const imageInput = document.querySelector('#id_image');
+const previewContainer = document.querySelector('#image-preview-container');
+const imagePreview = document.querySelector('#image-preview');
+const removeImageBtn = document.querySelector('#remove-image-btn');
+
+if (imageInput) {
+    imageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.setAttribute('src', e.target.result);
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    removeImageBtn.addEventListener('click', function() {
+        imageInput.value = '';
+        previewContainer.style.display = 'none';
+        imagePreview.setAttribute('src', '#');
+    });
+}
+</script>
+{% endblock %}

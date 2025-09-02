@@ -1,0 +1,79 @@
+{% extends 'news_feed/base.html' %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f6f9;
+        color: #333;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .card-title {
+        color: #212529;
+    }
+    .card-img-top {
+        max-height: 450px;
+        object-fit: cover;
+    }
+    .news-body-text {
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-white rounded shadow-sm mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'news_list' %}">Лента новостей</a>
+                <a href="{% url 'add_news' %}" class="btn btn-primary">Добавить новость</a>
+            </div>
+        </nav>
+
+        <div class="d-flex justify-content-end mb-3">
+            <span class="me-2 text-muted align-self-center">Показывать по:</span>
+            <div class="btn-group">
+                <a href="?per_page=10" class="btn btn-sm btn-outline-secondary {% if per_page == '10' %}active{% endif %}">10</a>
+                <a href="?per_page=20" class="btn btn-sm btn-outline-secondary {% if per_page == '20' %}active{% endif %}">20</a>
+                <a href="?per_page=50" class="btn btn-sm btn-outline-secondary {% if per_page == '50' %}active{% endif %}">50</a>
+            </div>
+        </div>
+
+        {% for news in page_obj %}
+            <div class="card mb-4 p-4">
+                {% if news.image %}
+                    <img src="{{ news.image.url }}" class="card-img-top rounded mb-3" alt="{{ news.title }}">
+                {% endif %}
+                <div class="card-body p-0">
+                    <h2 class="card-title">{{ news.title }}</h2>
+                    <p class="card-text"><small class="text-muted">{{ news.publication_date|date:"d F Y, H:i" }}</small></p>
+
+                    <div class="news-body-text">
+                        {{ news.body|safe }}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center p-5 bg-white rounded shadow-sm">
+                <h4 class="text-muted">Новостей пока нет.</h4>
+                <p>Нажмите "Добавить новость", чтобы создать первую запись.</p>
+            </div>
+        {% endfor %}
+
+        <!-- Пагинация -->
+        {% if page_obj.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page=1&per_page={{ per_page }}">&laquo;</a></li>{% endif %}
+                {% for num in page_obj.paginator.page_range %}{% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a></li>{% endif %}{% endfor %}
+                {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&per_page={{ per_page }}">&raquo;</a></li>{% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
